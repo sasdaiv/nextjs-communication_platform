@@ -5,6 +5,9 @@ import HomeCard from "./HomeCard";
 import { useRouter } from "next/navigation";
 import { Description } from "@radix-ui/react-dialog";
 import MeetingModal from "./MeetingModal";
+import { useUser } from "@clerk/nextjs";
+import { useStreamVideoClient } from "@stream-io/video-react-sdk";
+import { randomUUID } from "crypto";
 
 type TMeetingState =
   | "isJoiningMeeting"
@@ -14,8 +17,29 @@ type TMeetingState =
 const MeetingTypeList = () => {
   const router = useRouter();
   const [meetingState, setMeetingState] = useState<TMeetingState | undefined>();
+  const { user } = useUser();
+  const client = useStreamVideoClient();
+  const [values, setValues] = useState({
+    dateTime: new Date(),
+    description: '',
+    link: '',
+  })
 
-  const createMeeting = () => {};
+  const createMeeting = () => {
+    if (!client || !user) {
+      return;
+    }
+    try {
+      const id = randomUUID();
+      const call = client.call("default", id);
+
+      if (!call) {
+        throw new Error("Filed to create call");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const boxes = [
     {
